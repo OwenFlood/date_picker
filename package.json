@@ -1,0 +1,11 @@
+{
+  "name": "@private/date_picker",
+  "version": "1.0.0",
+  "description": "A cross platform datepicker for react-native",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Owen Flood",
+  "license": "ISC"
+}
