@@ -7,8 +7,14 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
+import Moment from 'moment';
 
 export default class DatePicker extends React.Component {
+  
+  state = {
+    currentDate: Moment()
+  }
+  
   render() {
     if (!this.props.isVisible) {
       return <View />;
@@ -16,22 +22,75 @@ export default class DatePicker extends React.Component {
       return (
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={this.props.closeModal} style={styles.modalBackground} />
-
-          <View style={{width: Dimensions.get('window').width * 0.85, height: 250, backgroundColor: 'rgba(250,250,250,1)', borderRadius: 5, alignItems: 'center'}}>
-          <Text onPress={this.props.closeModal} style={{color: '#000', position: 'absolute', right: 15, top: 20}}>X</Text>
-            {/*<DatePickerIOS
-              date={this.props.startDate}
-              style={{width: 250, height: 175, marginTop: 15}}
-              mode={this.props.type}
-              onDateChange={this.props.onDateChange}
-            />*/}
+          
+          <View style={{width: Dimensions.get('window').width * 0.85, height: 310, backgroundColor: 'rgba(250,250,250,1)', borderRadius: 5, alignItems: 'center'}}>
+            <Text onPress={this.props.closeModal} style={{color: '#000', position: 'absolute', right: 15, top: 20}}>X</Text>
+            
+            <View style={{alignItems: 'center', flexDirection: 'row'}}>
+              <TouchableOpacity onPress={this._backwards}>
+                <Text style={{fontSize: 20}}>{'<'}</Text>
+              </TouchableOpacity>
+              <View style={{width: 135, alignItems: 'center'}}>
+                <Text style={{fontSize: 16}}>{this.state.currentDate.format('MMMM - YYYY')}</Text>
+              </View>
+              <TouchableOpacity onPress={this._forwards}>
+                <Text style={{fontSize: 20}}>{'>'}</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={{flexDirection: 'row', width: Dimensions.get('window').width * 0.75, marginTop: 8}}>
+              {this._renderWeekDays()}
+            </View>
+            <View style={{flexWrap: 'wrap', flexDirection: 'row', width: Dimensions.get('window').width * 0.75, marginTop: 10}}>
+              {this._renderCalendar()}
+            </View>
           </View>
         </View>
       )
-    } else if (Platform.OS === 'android') {
-      this._isAndroid()
-      return <View />;
     }
+  }
+  
+  _renderWeekDays = () => {
+    let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    
+    return days.map((day, i) => {
+      return (
+        <Text key={i} style={{width: (Dimensions.get('window').width * 0.75) * 0.14, alignItems: 'center'}}>{day}</Text>
+      )
+    })
+  }
+
+  _renderCalendar = () => {
+    let days = 1
+    let month = []
+    let size = (Dimensions.get('window').width * 0.75) * 0.14
+    // Using this gets the first day of the month for adjusting the date placement
+    // hi.startOf('month').format('MMMM/YY - dddd')
+    let firstDay = this.state.currentDate.startOf('month').format('d')
+    
+    for (var i = 0; i < firstDay; i++) {
+      month.push({day: '', selected: false})
+    }
+    
+    for (var i = 1; i <= this.state.currentDate.daysInMonth(); i++) {
+      month.push({day: i, selected: false})
+    }
+    
+    return month.map((date, i) => {
+      return (
+        <View key={i} style={{width: size, height: size, borderWidth: 1, borderColor: 'black'}}>
+          <Text>{date.day}</Text>
+        </View>
+      )
+    })
+  }
+
+  _backwards = () => {
+    this.setState({currentDate: this.state.currentDate.subtract(1, 'months')})
+  }
+
+  _forwards = () => {
+    this.setState({currentDate: this.state.currentDate.add(1, 'months')})
   }
 }
 
