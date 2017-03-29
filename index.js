@@ -9,10 +9,13 @@ import {
 } from 'react-native';
 import Moment from 'moment';
 
+import Date from './Date';
+
 export default class DatePicker extends React.Component {
   
   state = {
-    currentDate: Moment()
+    currentMonth: Moment(),
+    selectedDate: Moment(),
   }
   
   render() {
@@ -31,7 +34,7 @@ export default class DatePicker extends React.Component {
                 <Text style={{fontSize: 20}}>{'<'}</Text>
               </TouchableOpacity>
               <View style={{width: 135, alignItems: 'center'}}>
-                <Text style={{fontSize: 16}}>{this.state.currentDate.format('MMMM - YYYY')}</Text>
+                <Text style={{fontSize: 16}}>{this.state.currentMonth.format('MMMM - YYYY')}</Text>
               </View>
               <TouchableOpacity onPress={this._forwards}>
                 <Text style={{fontSize: 20}}>{'>'}</Text>
@@ -66,31 +69,40 @@ export default class DatePicker extends React.Component {
     let size = (Dimensions.get('window').width * 0.75) * 0.14
     // Using this gets the first day of the month for adjusting the date placement
     // hi.startOf('month').format('MMMM/YY - dddd')
-    let firstDay = this.state.currentDate.startOf('month').format('d')
+    let firstDay = this.state.currentMonth.startOf('month').format('d')
     
     for (var i = 0; i < firstDay; i++) {
       month.push({day: '', selected: false})
     }
     
-    for (var i = 1; i <= this.state.currentDate.daysInMonth(); i++) {
+    for (var i = 1; i <= this.state.currentMonth.daysInMonth(); i++) {
       month.push({day: i, selected: false})
     }
     
     return month.map((date, i) => {
-      return (
-        <View key={i} style={{width: size, height: size, borderWidth: 1, borderColor: 'black'}}>
-          <Text>{date.day}</Text>
-        </View>
-      )
+      if (this.state.currentMonth.month() === this.state.selectedDate.month() && this.state.selectedDate.date() === date.day) {
+        return (
+          <Date selected size={size} day={date.day} selectDate={this._selectDate} key={i} />
+        )  
+      } else {
+        return (
+          <Date size={size} day={date.day} selectDate={this._selectDate} key={i} />
+        )
+      }
     })
+  }
+  
+  _selectDate = (day) => {
+    let currentDate = this.state.currentMonth.clone()
+    this.setState({selectedDate: currentDate.date(day)})
   }
 
   _backwards = () => {
-    this.setState({currentDate: this.state.currentDate.subtract(1, 'months')})
+    this.setState({currentDate: this.state.currentMonth.subtract(1, 'months')})
   }
 
   _forwards = () => {
-    this.setState({currentDate: this.state.currentDate.add(1, 'months')})
+    this.setState({currentDate: this.state.currentMonth.add(1, 'months')})
   }
 }
 
