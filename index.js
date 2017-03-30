@@ -93,8 +93,9 @@ export default class DatePicker extends React.Component {
   }
   
   _selectDate = (day) => {
-    let currentDate = this.state.currentMonth.clone()
-    this.setState({selectedDate: currentDate.date(day)})
+    let currentDate = this.state.currentMonth.clone().date(day)
+    this.setState({selectedDate: currentDate})
+    this.props.onDateChange(currentDate)
   }
 
   _backwards = () => {
