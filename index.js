@@ -21,7 +21,7 @@ export default class DatePicker extends React.Component {
   render() {
     if (!this.props.isVisible) {
       return <View />;
-    } else if (Platform.OS === 'ios') {
+    } else {
       return (
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={this.props.closeModal} style={styles.modalBackground} />
