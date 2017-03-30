@@ -23,13 +23,16 @@ import DatePicker from 'date_picker'
 
 class App extends React.Component {
   state = {
-    isVisible: false
+    isVisible: false,
+    date: new Date(),
   }
   
   render() {
     return (
       <View style={styles.Container}>
+        <Text>{this.state.date.toString()}</Text>
         // All you other rad components
+        
         <TouchableOpacity
           onPress={this._toggleDatePicker}>
           <Text>Pick That Date!</Text>
@@ -37,6 +40,7 @@ class App extends React.Component {
         
         <DatePicker
           isVisible={this.state.isVisible}
+          onDateChange={this.onDateChange}
         />
       </View>
     )
@@ -44,6 +48,10 @@ class App extends React.Component {
   
   _toggleDatePicker = () => {
     this.setState({isVisible: !this.state.isVisible})
+  }
+  
+  onDateChange = (newDate) => {
+    this.setState({date: newDate});
   }
 }
 ```
