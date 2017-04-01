@@ -6,6 +6,7 @@ import {
   Platform,
   Dimensions,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
 import Moment from 'moment';
 
@@ -14,6 +15,7 @@ import Date from './Date';
 export default class DatePicker extends React.Component {
   
   state = {
+    fadeAnim: new Animated.Value(0),
     currentMonth: Moment(),
     selectedDate: Moment(),
   }
@@ -22,12 +24,17 @@ export default class DatePicker extends React.Component {
     if (!this.props.isVisible) {
       return <View />;
     } else {
+      Animated.timing(this.state.fadeAnim, {
+        toValue: 1,
+        duration: 500
+      }).start();
+      
       return (
-        <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={this.props.closeModal} style={styles.modalBackground} />
+        <Animated.View style={[styles.modalContainer, {opacity: this.state.fadeAnim}]}>
+          <TouchableOpacity onPress={this._closeModal} style={styles.modalBackground} />
           
           <View style={{width: Dimensions.get('window').width * 0.85, height: 310, backgroundColor: 'rgba(250,250,250,1)', borderRadius: 5, alignItems: 'center'}}>
-            <Text onPress={this.props.closeModal} style={{color: '#000', position: 'absolute', right: 15, top: 20}}>X</Text>
+            <Text onPress={this._closeModal} style={{color: '#000', position: 'absolute', right: 15, top: 20}}>X</Text>
             
             <View style={{alignItems: 'center', flexDirection: 'row'}}>
               <TouchableOpacity onPress={this._backwards}>
@@ -48,9 +55,14 @@ export default class DatePicker extends React.Component {
               {this._renderCalendar()}
             </View>
           </View>
-        </View>
+        </Animated.View>
       )
     }
+  }
+  
+  _closeModal = () => {
+    this.setState({fadeAnim: new Animated.Value(0)});
+    this.props.closeModal()
   }
   
   _renderWeekDays = () => {
