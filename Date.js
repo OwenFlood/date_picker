@@ -6,35 +6,140 @@ import {
   Platform,
   Dimensions,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
 import Moment from 'moment';
 
-export default class Date extends React.Component {
-  state = {
-    selected: false,
+import { CalendarDate } from './CalendarDate';
+
+export class Date extends React.Component {
+  
+  constructor(props) {
+    super(props)
+    this.state = {
+      fadeAnim: new Animated.Value(1),
+      currentMonth: props.initial || Moment(),
+      selectedDate: props.initial || Moment(),
+    }
   }
   
   render() {
-    let dateColor;
-    this.props.selected ? dateColor = 'green' : dateColor = 'white'
-    return (
-      <TouchableOpacity
-        onPress={this._handlePressed}
-        style={[styles.date, {width: this.props.size, height: this.props.size, backgroundColor: dateColor}]}>
-        <Text>{this.props.day}</Text>
-      </TouchableOpacity>
-    )
+    if (!this.props.isVisible) {
+      return <View />;
+    } else {
+      console.log(this.props.initial);
+      // Animated.timing(this.state.fadeAnim, {
+      //   toValue: 1,
+      //   duration: 500
+      // }).start();
+      
+      return (
+        <Animated.View style={[styles.modalContainer, {opacity: this.state.fadeAnim}]}>
+          <TouchableOpacity onPress={this._closeModal} style={styles.modalBackground} />
+          
+          <View style={{width: Dimensions.get('window').width * 0.85, height: 310, backgroundColor: 'rgba(250,250,250,1)', borderRadius: 5, alignItems: 'center'}}>
+            <Text onPress={this._closeModal} style={{color: '#000', position: 'absolute', right: 15, top: 20}}>X</Text>
+            
+            <View style={{alignItems: 'center', flexDirection: 'row'}}>
+              <TouchableOpacity onPress={this._backwards}>
+                <Text style={{fontSize: 20}}>{'<'}</Text>
+              </TouchableOpacity>
+              <View style={{width: 135, alignItems: 'center'}}>
+                <Text style={{fontSize: 16}}>{this.state.currentMonth.format('MMMM - YYYY')}</Text>
+              </View>
+              <TouchableOpacity onPress={this._forwards}>
+                <Text style={{fontSize: 20}}>{'>'}</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={{flexDirection: 'row', width: Dimensions.get('window').width * 0.75, marginTop: 8}}>
+              {this._renderWeekDays()}
+            </View>
+            <View style={{flexWrap: 'wrap', flexDirection: 'row', width: Dimensions.get('window').width * 0.75, marginTop: 10}}>
+              {this._renderCalendar()}
+            </View>
+          </View>
+        </Animated.View>
+      )
+    }
   }
   
-  _handlePressed = () => {
-    this.setState({selected: !this.state.selected});
-    this.props.selectDate(this.props.day)
+  _closeModal = () => {
+    this.props.onDateChange(this.state.selectedDate)
+    this.setState({fadeAnim: new Animated.Value(1)});
+    this.props.closeModal()
+  }
+  
+  _renderWeekDays = () => {
+    let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    
+    return days.map((day, i) => {
+      return (
+        <Text key={i} style={{width: (Dimensions.get('window').width * 0.75) * 0.14, alignItems: 'center'}}>{day}</Text>
+      )
+    })
+  }
+
+  _renderCalendar = () => {
+    let days = 1
+    let month = []
+    let size = (Dimensions.get('window').width * 0.75) * 0.14
+    // Using this gets the first day of the month for adjusting the date placement
+    // hi.startOf('month').format('MMMM/YY - dddd')
+    let firstDay = this.state.currentMonth.startOf('month').format('d')
+    
+    for (var i = 0; i < firstDay; i++) {
+      month.push({day: '', selected: false})
+    }
+    
+    for (var i = 1; i <= this.state.currentMonth.daysInMonth(); i++) {
+      month.push({day: i, selected: false})
+    }
+    
+    return month.map((date, i) => {
+      if (this.state.currentMonth.month() === this.state.selectedDate.month() && this.state.selectedDate.date() === date.day) {
+        return (
+          <CalendarDate selected size={size} day={date.day} selectDate={this._selectDate} key={i} />
+        )  
+      } else {
+        return (
+          <CalendarDate size={size} day={date.day} selectDate={this._selectDate} key={i} />
+        )
+      }
+    })
+  }
+  
+  _selectDate = (day) => {
+    let currentDate = this.state.currentMonth.clone().date(day)
+    this.setState({selectedDate: currentDate})
+    // this.props.onDateChange(currentDate)
+  }
+
+  _backwards = () => {
+    this.setState({currentDate: this.state.currentMonth.subtract(1, 'months')})
+  }
+
+  _forwards = () => {
+    this.setState({currentDate: this.state.currentMonth.add(1, 'months')})
   }
 }
 
 const styles = StyleSheet.create({
-  date: {
-    borderWidth: 1,
-    borderColor: 'black',
+  modalContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-})
+  modalBackground: {
+    backgroundColor: 'rgba(0,0,0,.8)',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  }
+});
