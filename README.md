@@ -55,3 +55,12 @@ class App extends React.Component {
   }
 }
 ```
+
+## Props
+
+| **Prop**      | **Type**      | **Description**  |
+| ------------- |---------------| -----------------|
+| `onDateChange`| `function`    | Function that fires when the picker is closed. The function is passed a `Date` object. |
+| `isVisible`   | `bool`        | If `true` the modal will be visible. |
+| `closeModal`  | `function`    | Function that is called when the modal is closed. Pass the function that handles the toggling of the modal |
+
