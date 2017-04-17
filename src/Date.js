@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import Moment from 'moment';
 
-import { CalendarDate } from './CalendarDate';
+import { Calendar } from './Calendar';
 
 export class Date extends React.Component {
   
@@ -27,7 +27,6 @@ export class Date extends React.Component {
     if (!this.props.isVisible) {
       return <View />;
     } else {
-      console.log(this.props.initial);
       // Animated.timing(this.state.fadeAnim, {
       //   toValue: 1,
       //   duration: 500
@@ -52,12 +51,7 @@ export class Date extends React.Component {
               </TouchableOpacity>
             </View>
             
-            <View style={{flexDirection: 'row', width: Dimensions.get('window').width * 0.75, marginTop: 8}}>
-              {this._renderWeekDays()}
-            </View>
-            <View style={{flexWrap: 'wrap', flexDirection: 'row', width: Dimensions.get('window').width * 0.75, marginTop: 10}}>
-              {this._renderCalendar()}
-            </View>
+            <Calendar selectedDate={this.state.selectedDate} currentMonth={this.state.currentMonth} selectDate={this._selectDate} />
           </View>
         </Animated.View>
       )
@@ -68,45 +62,6 @@ export class Date extends React.Component {
     this.props.onDateChange(this.state.selectedDate)
     this.setState({fadeAnim: new Animated.Value(1)});
     this.props.closeModal()
-  }
-  
-  _renderWeekDays = () => {
-    let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    
-    return days.map((day, i) => {
-      return (
-        <Text key={i} style={{width: (Dimensions.get('window').width * 0.75) * 0.14, alignItems: 'center'}}>{day}</Text>
-      )
-    })
-  }
-
-  _renderCalendar = () => {
-    let days = 1
-    let month = []
-    let size = (Dimensions.get('window').width * 0.75) * 0.14
-    // Using this gets the first day of the month for adjusting the date placement
-    // hi.startOf('month').format('MMMM/YY - dddd')
-    let firstDay = this.state.currentMonth.startOf('month').format('d')
-    
-    for (var i = 0; i < firstDay; i++) {
-      month.push({day: '', selected: false})
-    }
-    
-    for (var i = 1; i <= this.state.currentMonth.daysInMonth(); i++) {
-      month.push({day: i, selected: false})
-    }
-    
-    return month.map((date, i) => {
-      if (this.state.currentMonth.month() === this.state.selectedDate.month() && this.state.selectedDate.date() === date.day) {
-        return (
-          <CalendarDate selected size={size} day={date.day} selectDate={this._selectDate} key={i} />
-        )  
-      } else {
-        return (
-          <CalendarDate size={size} day={date.day} selectDate={this._selectDate} key={i} />
-        )
-      }
-    })
   }
   
   _selectDate = (day) => {

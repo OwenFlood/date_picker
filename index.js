@@ -1,4 +1,4 @@
-import { Date } from './Date'
+import { Date } from './src/Date'
 
 export default {
   Date: Date,
